@@ -70,9 +70,20 @@ def handle_button_click(data):
         
         if session_store.get('start_time'):
             current_time_ms = int(time.time() * 1000) - session_store.get('start_time')
-            minutes = int(current_time_ms // 6000000)
-            seconds = int(current_time_ms % 6000000) / 1000
-            log_entry = f"{user_name} - {f"0{minutes}" if minutes < 10 else minutes}:{f"0{seconds}" if seconds < 10 else seconds}"
+            minutes = int(current_time_ms // 60000)
+            seconds = int(current_time_ms % 60000) / 1000
+            
+            log_entry = f"{user_name} - "
+            if minutes < 10:
+                log_entry += f"0{minutes}:"
+            else:
+                log_entry += f"{minutes}:"
+                
+            if seconds < 10:
+                log_entry += f"0{seconds}"
+            else:
+                log_entry += f"{seconds}"
+            
             emit('update_log', {'log': log_entry}, broadcast=True)
         else:
             emit('update_log', {'log': f"{user_name} - Таймер еще не запущен."}, broadcast=True)

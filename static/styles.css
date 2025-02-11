@@ -1,0 +1,120 @@
+html {
+  width: 100%; 
+  height: 100%; 
+  font-family: 'Roboto', serif;
+}
+
+body {
+  width: 100%; 
+  height: 100%; 
+  display: flex; 
+  align-items: center; 
+  justify-content: center;
+}
+
+#modal {
+  background-color: rgb(247, 238, 238); 
+  border: 1px solid #caabab; 
+  border-radius: 12px; 
+  padding: 8px 12px; 
+  box-shadow: 6px 6px 6px 1px rgba(34, 60, 80, 0.26);
+  -moz-box-shadow: 6px 6px 6px 1px rgba(34, 60, 80, 0.26);
+  -webkit-box-shadow: 6px 6px 6px 1px rgba(34, 60, 80, 0.26);
+}
+
+#name {
+  border: none; 
+  height: 30px; 
+  width: calc(100% - 5px); 
+  margin-top: 8px; 
+  border-radius: 6px;
+}
+
+#submit-button {
+  background-color: #fff; 
+  border: 1px solid rgb(226, 185, 185); 
+  border-radius: 4px; 
+  height: 30px; 
+  width: 140px;
+}
+
+#user-panel {
+  flex-direction: column; 
+  justify-content: center; 
+  align-items: center;
+}
+
+#click-button {
+  height: 50px; 
+  width: 140px; 
+  background-color: rgb(231, 202, 202); 
+  border: 1px solid rgb(226, 185, 185); 
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+#click-button:disabled:hover {
+  background-color: rgb(231, 202, 202);
+  cursor: default;
+}
+
+#click-button:hover {
+  background-color: rgb(226, 185, 185); 
+}
+
+#click-button: {
+  background-color: rgb(226, 185, 185); 
+}
+
+#admin-panel {
+  flex-direction: column; 
+  justify-content: center; 
+  align-items: center;
+}
+
+#timer {
+  margin: 0;
+  font-weight: 500;
+  font-size: 50px;
+}
+
+#log-list {
+  padding-left: 20px;
+  font-size: 20px;
+}
+
+#start-timer-button {
+  background-color: #a6cf84; 
+  border: 1px solid rgb(114, 235, 66); 
+  border-radius: 4px; 
+  height: 30px; 
+  width: 140px;
+  margin: 5px 8px;
+}
+
+#stop-timer-button {
+  background-color: #f5dede; 
+  border: 1px solid rgb(226, 185, 185); 
+  border-radius: 4px; 
+  height: 30px; 
+  width: 140px;
+  margin: 5px 8px;
+}
+
+#clear-log-button {
+  background-color: #f5dede; 
+  border: 1px solid rgb(226, 185, 185); 
+  border-radius: 4px; 
+  height: 30px; 
+  width: 160px;
+  margin: 5px 8px;
+}
+
+#clear-timer-button {
+  background-color: #f5dede; 
+  border: 1px solid rgb(226, 185, 185); 
+  border-radius: 4px; 
+  height: 30px; 
+  width: 140px;
+  margin: 5px 8px;
+}

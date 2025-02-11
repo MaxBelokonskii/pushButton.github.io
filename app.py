@@ -17,7 +17,7 @@ from flask_socketio import SocketIO, emit
 import time
 
 app = Flask(__name__)
-app.secret_key = 'your_secret_key'
+app.secret_key = 'my-secret-key-is-so-hard'
 socketio = SocketIO(app, cors_allowed_origins="*")
 
 session_store = SessionStore()

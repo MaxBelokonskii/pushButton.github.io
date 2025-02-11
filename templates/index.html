@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Игры Синеда</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+    <style>
+        html {
+            width: 100%; 
+            height: 100%; 
+            font-family: 'Roboto', serif;
+        }
+
+        body {
+            width: 100%; 
+            height: 100%; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
+        }
+
+        #modal {
+            background-color: rgb(247, 238, 238); 
+            border: 1px solid #caabab; 
+            border-radius: 12px; 
+            padding: 8px 12px; 
+            box-shadow: 6px 6px 6px 1px rgba(34, 60, 80, 0.26);
+            -moz-box-shadow: 6px 6px 6px 1px rgba(34, 60, 80, 0.26);
+            -webkit-box-shadow: 6px 6px 6px 1px rgba(34, 60, 80, 0.26);
+        }
+
+        #name {
+            border: none; 
+            height: 30px; 
+            width: calc(100% - 5px); 
+            margin-top: 8px; 
+            border-radius: 6px;
+        }
+
+        #submit-button {
+            background-color: #fff; 
+            border: 1px solid rgb(226, 185, 185); 
+            border-radius: 4px; 
+            height: 30px; 
+            width: 140px;
+        }
+
+        #user-panel {
+            flex-direction: column; 
+            justify-content: center; 
+            align-items: center;
+        }
+
+        #click-button {
+            height: 50px; 
+            width: 140px; 
+            background-color: rgb(231, 202, 202); 
+            border: 1px solid rgb(226, 185, 185); 
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        #click-button:disabled:hover {
+            background-color: rgb(231, 202, 202);
+            cursor: default;
+        }
+
+        #click-button:hover {
+            background-color: rgb(226, 185, 185); 
+        }
+
+        #click-button: {
+            background-color: rgb(226, 185, 185); 
+        }
+
+        #admin-panel {
+            flex-direction: column; 
+            justify-content: center; 
+            align-items: center;
+        }
+
+        #timer {
+            margin: 0;
+            font-weight: 500;
+            font-size: 50px;
+        }
+
+        #log-list {
+            padding-left: 20px;
+            font-size: 20px;
+        }
+
+        #start-timer-button {
+            background-color: #a6cf84; 
+            border: 1px solid rgb(114, 235, 66); 
+            border-radius: 4px; 
+            height: 30px; 
+            width: 140px;
+            margin: 5px 8px;
+        }
+
+        #stop-timer-button {
+            background-color: #f5dede; 
+            border: 1px solid rgb(226, 185, 185); 
+            border-radius: 4px; 
+            height: 30px; 
+            width: 140px;
+            margin: 5px 8px;
+        }
+
+        #clear-log-button {
+            background-color: #f5dede; 
+            border: 1px solid rgb(226, 185, 185); 
+            border-radius: 4px; 
+            height: 30px; 
+            width: 160px;
+            margin: 5px 8px;
+        }
+
+        #clear-timer-button {
+            background-color: #f5dede; 
+            border: 1px solid rgb(226, 185, 185); 
+            border-radius: 4px; 
+            height: 30px; 
+            width: 140px;
+            margin: 5px 8px;
+        }
+    </style>
+</head>
+<body>
+<div  
+    id="modal"
+>
+    <h2>Выберите роль:</h2>
+    <input type="radio" id="admin" name="role" value="admin"> Синед<br>
+    <input type="radio" id="user" name="role" value="user"> Игрок<br><br>
+    <label for="name">Введите ваше имя:</label>
+    <input type="text" id="name" placeholder="Ваше имя"><br><br>
+    <button id="submit-button" onclick="submitRole()">Подтвердить</button>
+</div>
+
+<div id="admin-panel" style="display:none">
+    <h2>Панель для Синеда</h2>
+    <p id="timer">00:00:000</p>
+    <ol id="log-list"></ol>
+    <div>
+        <button id="start-timer-button" onclick="startTimer()">Запустить таймер</button>
+        <button id="stop-timer-button" onclick="stopTimer()">Остановить таймер</button>
+    </div>
+    <br/>
+    <div>
+        <button id="clear-timer-button" onclick="clearTimer()">Обнулить таймер</button>
+        <button id="clear-log-button" onclick="clearLogList()">Очистить статистику</button>
+    </div>
+</div>
+
+<div id="user-panel" style="display: none;">
+    <h2>Тебе нужно нажать кнопку, когда она загорится</h2>
+    <button
+    id="click-button" disabled>Нажми меня!</button>
+</div>
+
+<script>
+const socket = io();
+let username;
+let timerInterval;
+let startTime;
+let isRunning = false;
+
+document.getElementById("click-button").addEventListener("click", function () {
+    const data = { username };
+    socket.emit('button_click', data);
+});
+
+function submitRole() {
+    const role = document.querySelector('input[name="role"]:checked').value;
+    username = document.getElementById("name").value;
+    
+    fetch('/login', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+        body: `role=${role}&name=${username}`
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'ok') {
+            document.getElementById("modal").style.display = "none";
+            if (role === 'admin') {
+                document.getElementById("admin-panel").style.display = "flex";
+            } else {
+                document.getElementById("user-panel").style.display = "flex";
+            }
+        }
+    });
+};
+
+function startTimer() {
+    if (!isRunning) {
+        startTime = Date.now(); 
+        socket.emit('start_timer');
+        timerInterval = setInterval(updateTimer, 10);
+        isRunning = true;
+    }
+}
+
+function stopTimer() {
+    if (isRunning) {
+        clearInterval(timerInterval);
+        socket.emit('stop_timer');
+        isRunning = false
+    }
+}
+
+function updateTimer() {
+    let elapsedTime = Date.now() - startTime;
+    let milliseconds = elapsedTime % 1000;
+    let seconds = Math.floor(elapsedTime / 1000) % 60;
+    let minutes = Math.floor(elapsedTime / 60000);
+    document.getElementById("timer").innerText = `${minutes < 10 ? '0' + minutes : minutes}:${seconds.toString().padStart(2, '0')}:${milliseconds.toString().padStart(3, '0')}`;
+}
+
+function clearTimer() {
+    document.getElementById("timer").innerText = '00:00:000';
+}
+
+function updateLog(logEntry) {
+    const logList = document.getElementById("log-list");
+    const newItem = document.createElement("li");
+    newItem.innerText = logEntry;
+    logList.appendChild(newItem);
+}
+
+function clearLogList() {
+    const logList = document.getElementById("log-list");
+    while (logList.firstChild) {
+        logList.removeChild(logList.firstChild);
+    }
+}
+
+socket.on('activate_button', () => {
+    document.getElementById("click-button").disabled = false;
+})
+
+socket.on('deactivate_button', () => {
+    document.getElementById("click-button").disabled = true;
+})
+
+socket.on('timer_started', () => {
+    startTimer();
+})
+
+socket.on('timer_stopped', () => {
+    stopTimer();
+})
+
+socket.on('update_log', (data) => {
+    updateLog(data.log);
+})
+
+</script>
+</body>
+</html>

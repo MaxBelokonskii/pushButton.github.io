@@ -102,4 +102,4 @@ if __name__ == "__main__":
     with open('docs/index.html', 'wb') as f:
         f.write(rendered_index)
 
-    print("Static files generated successfully!")
+    print("Static files    generated successfully!")

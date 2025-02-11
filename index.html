@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Игры Синеда</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+    <link rel="stylesheet" href="../static/styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+</head>
+<body>
+<div  
+    id="modal"
+>
+    <h2>Выберите роль:</h2>
+    <input type="radio" id="admin" name="role" value="admin"> Синед<br>
+    <input type="radio" id="user" name="role" value="user"> Игрок<br><br>
+    <label for="name">Введите ваше имя:</label>
+    <input type="text" id="name" placeholder="Ваше имя"><br><br>
+    <button id="submit-button" onclick="submitRole()">Подтвердить</button>
+</div>
+
+<div id="admin-panel" style="display:none">
+    <h2>Панель для Синеда</h2>
+    <p id="timer">00:00:000</p>
+    <ol id="log-list"></ol>
+    <div>
+        <button id="start-timer-button" onclick="startTimer()">Запустить таймер</button>
+        <button id="stop-timer-button" onclick="stopTimer()">Остановить таймер</button>
+    </div>
+    <br/>
+    <div>
+        <button id="clear-timer-button" onclick="clearTimer()">Обнулить таймер</button>
+        <button id="clear-log-button" onclick="clearLogList()">Очистить статистику</button>
+    </div>
+</div>
+
+<div id="user-panel" style="display: none;">
+    <h2>Тебе нужно нажать кнопку, когда она загорится</h2>
+    <button
+    id="click-button" disabled>Нажми меня!</button>
+</div>
+
+<script>
+const socket = io();
+let username;
+let timerInterval;
+let startTime;
+let isRunning = false;
+
+document.getElementById("click-button").addEventListener("click", function () {
+    const data = { username };
+    socket.emit('button_click', data);
+});
+
+function submitRole() {
+    const role = document.querySelector('input[name="role"]:checked').value;
+    username = document.getElementById("name").value;
+    
+    fetch('/login', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+        body: `role=${role}&name=${username}`
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'ok') {
+            document.getElementById("modal").style.display = "none";
+            if (role === 'admin') {
+                document.getElementById("admin-panel").style.display = "flex";
+            } else {
+                document.getElementById("user-panel").style.display = "flex";
+            }
+        }
+    });
+};
+
+function startTimer() {
+    if (!isRunning) {
+        startTime = Date.now(); 
+        socket.emit('start_timer');
+        timerInterval = setInterval(updateTimer, 10);
+        isRunning = true;
+    }
+}
+
+function stopTimer() {
+    if (isRunning) {
+        clearInterval(timerInterval);
+        socket.emit('stop_timer');
+        isRunning = false
+    }
+}
+
+function updateTimer() {
+    let elapsedTime = Date.now() - startTime;
+    let milliseconds = elapsedTime % 1000;
+    let seconds = Math.floor(elapsedTime / 1000) % 60;
+    let minutes = Math.floor(elapsedTime / 60000);
+    document.getElementById("timer").innerText = `${minutes < 10 ? '0' + minutes : minutes}:${seconds.toString().padStart(2, '0')}:${milliseconds.toString().padStart(3, '0')}`;
+}
+
+function clearTimer() {
+    document.getElementById("timer").innerText = '00:00:000';
+}
+
+function updateLog(logEntry) {
+    const logList = document.getElementById("log-list");
+    const newItem = document.createElement("li");
+    newItem.innerText = logEntry;
+    logList.appendChild(newItem);
+}
+
+function clearLogList() {
+    const logList = document.getElementById("log-list");
+    while (logList.firstChild) {
+        logList.removeChild(logList.firstChild);
+    }
+}
+
+socket.on('activate_button', () => {
+    document.getElementById("click-button").disabled = false;
+})
+
+socket.on('deactivate_button', () => {
+    document.getElementById("click-button").disabled = true;
+})
+
+socket.on('timer_started', () => {
+    startTimer();
+})
+
+socket.on('timer_stopped', () => {
+    stopTimer();
+})
+
+socket.on('update_log', (data) => {
+    updateLog(data.log);
+})
+
+</script>
+</body>
+</html>

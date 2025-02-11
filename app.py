@@ -88,5 +88,13 @@ def handle_button_click(data):
         else:
             emit('update_log', {'log': f"{user_name} - Таймер еще не запущен."}, broadcast=True)
 
-if __name__ == '__main__':
-    socketio.run(app, debug=False,  allow_unsafe_werkzeug=True)
+if __name__ == "__main__":
+    # Генерируем статические файлы
+    with app.test_request_context():
+        rendered_index = render_template('index.html').encode('utf-8')
+
+    # Сохраняем index.html
+    with open('docs/index.html', 'wb') as f:
+        f.write(rendered_index)
+
+    print("Static files generated successfully!")

@@ -15,6 +15,7 @@ class SessionStore:
 from flask import Flask, render_template, request, session, jsonify
 from flask_socketio import SocketIO, emit
 import time
+import os
 
 app = Flask(__name__)
 app.secret_key = 'my-secret-key-is-so-hard'
@@ -89,6 +90,10 @@ def handle_button_click(data):
             emit('update_log', {'log': f"{user_name} - Таймер еще не запущен."}, broadcast=True)
 
 if __name__ == "__main__":
+    # Создаем папку docs, если она не существует
+    if not os.path.exists('docs'):
+        os.makedirs('docs')
+
     # Генерируем статические файлы
     with app.test_request_context():
         rendered_index = render_template('index.html').encode('utf-8')

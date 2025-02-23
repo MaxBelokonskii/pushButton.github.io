@@ -133,3 +133,12 @@ body {
    background-color: #ecdfdf;
    cursor: default;
 }
+
+#logout-button {
+  margin-top: 20px;
+  background-color: #ff0000; 
+  border: 1px solid rgb(255, 0, 0); 
+  border-radius: 4px; 
+  height: 30px; 
+  width: 140px;
+}

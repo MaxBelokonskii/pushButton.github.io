@@ -40,6 +40,14 @@ def login():
     session['name'] = name
     return jsonify({'status': 'ok'})
 
+@app.route('/logout', methods=['PATCH'])
+def logout():
+    role = 'none'
+    name = 'none'
+    session['role'] = ''
+
+    return jsonify({'status': 'logout'})
+
 @socketio.on('connect')
 def connect():
     session['sid'] = request.sid

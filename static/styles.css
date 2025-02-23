@@ -62,7 +62,7 @@ body {
   background-color: rgb(226, 185, 185); 
 }
 
-#click-button: {
+#click-button {
   background-color: rgb(226, 185, 185); 
 }
 
@@ -92,6 +92,11 @@ body {
   margin: 5px 8px;
 }
 
+#start-timer-button:hover {
+  background-color: rgb(114, 235, 66); 
+  cursor: pointer;
+}
+
 #stop-timer-button {
   background-color: #f5dede; 
   border: 1px solid rgb(226, 185, 185); 
@@ -100,6 +105,11 @@ body {
   width: 140px;
   margin: 5px 8px;
 }
+
+#stop-timer-button:hover, #clear-log-button:hover, #clear-timer-button:hover {
+  background-color: rgb(226, 185, 185);
+  cursor: pointer;
+} 
 
 #clear-log-button {
   background-color: #f5dede; 
@@ -117,4 +127,9 @@ body {
   height: 30px; 
   width: 140px;
   margin: 5px 8px;
+}
+
+#clear-log-button:disabled, #clear-timer-button:disabled {
+   background-color: #ecdfdf;
+   cursor: default;
 }

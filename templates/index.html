@@ -31,15 +31,17 @@
     </div>
     <br/>
     <div>
-        <button id="clear-timer-button" onclick="clearTimer()">Обнулить таймер</button>
-        <button id="clear-log-button" onclick="clearLogList()">Очистить статистику</button>
+        <button id="clear-timer-button" onclick="clearTimer()" disabled>Обнулить таймер</button>
+        <button id="clear-log-button" onclick="clearLogList()" disabled>Очистить статистику</button>
     </div>
+
+        <button id="logout-button" onclick="logout()">Выйти</button>
 </div>
 
 <div id="user-panel" style="display: none;">
     <h2>Тебе нужно нажать кнопку, когда она загорится</h2>
-    <button
-    id="click-button" disabled>Нажми меня!</button>
+    <button id="click-button" disabled>Нажми меня!</button>
+    <button id="logout-button" onclick="logout()">Выйти</button>
 </div>
 
 <script>
@@ -55,9 +57,9 @@ document.getElementById("click-button").addEventListener("click", function () {
 });
 
 function submitRole() {
-    const role = document.querySelector('input[name="role"]:checked').value;
-    username = document.getElementById("name").value;
-    
+    const role = document.querySelector('input[name="role"]:checked')?.value;
+    const username = document.getElementById("name").value;
+
     fetch('/login', {
         method: 'POST',
         headers: {'Content-Type': 'application/x-www-form-urlencoded'},
@@ -119,12 +121,31 @@ function clearLogList() {
     }
 }
 
+function logout() {
+    fetch('/logout', {
+        method: 'PATCH',
+        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+    })
+    .then(response => response.json())
+    .then(() => {
+        document.getElementById("modal").style.display = "block";
+        document.getElementById("admin-panel").style.display = "none";
+        document.getElementById("user-panel").style.display = "none";
+    });
+}
+
+// socket logic
+
 socket.on('activate_button', () => {
     document.getElementById("click-button").disabled = false;
+    document.getElementById("clear-timer-button").disabled = true;
+    document.getElementById("clear-log-button").disabled = true;
 })
 
 socket.on('deactivate_button', () => {
     document.getElementById("click-button").disabled = true;
+    document.getElementById("clear-timer-button").disabled = false;
+    document.getElementById("clear-log-button").disabled = false;
 })
 
 socket.on('timer_started', () => {
